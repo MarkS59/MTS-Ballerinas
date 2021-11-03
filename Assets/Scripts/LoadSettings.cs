@@ -8,12 +8,13 @@ public class LoadSettings : MonoBehaviour
     public static LoadSettings instance;
     public Texture2D ramka;
     public Dictionary<string, string> settings = new Dictionary<string, string>();
+    public string fileName = "settings.txt";
     // Start is called before the first frame update
     void Start()
     {
-        if (File.Exists(Application.dataPath + "/../settings.txt"))
+        if (File.Exists(Application.dataPath + "/../"+fileName))
         {
-            var arr = File.ReadAllLines(Application.dataPath + "/../settings.txt");
+            var arr = File.ReadAllLines(Application.dataPath + "/../" + fileName);
 
             foreach (string str in arr)
             {

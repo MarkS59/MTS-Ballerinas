@@ -1,0 +1,81 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Video;
+using UnityEngine.UI;
+
+[DefaultExecutionOrder(-900)]
+public class WelcomeScreen : MonoBehaviour
+{
+    public static WelcomeScreen instance;
+    public string current_scenario;
+
+    Dictionary<string, GameObject> scenarios = new Dictionary<string, GameObject>();
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        VideoPlayer player = GameObject.FindObjectOfType<VideoPlayer>();
+        instance = this;   
+        for(int i = 0; i < transform.childCount; i++){
+            scenarios.Add(transform.GetChild(i).gameObject.name, transform.GetChild(i).gameObject);
+            for(int j = 0; j < transform.GetChild(i).childCount; j++)
+                transform.GetChild(i).GetChild(j).GetComponent<RawImage>().texture = player.targetTexture;
+            
+        }
+
+        foreach(var obj in scenarios.Values)
+            obj.SetActive(false);
+    }
+
+    float lastTime = -1;
+    // Update is called once per frame
+    void Update()
+    {
+        if(lastTime > 0 && Time.time > lastTime){
+            StartCoroutine(_PlayVideo());
+        }
+    }
+
+    IEnumerator _PlayVideo(){
+        lastTime = -1;
+        int rnd = UnityEngine.Random.Range(0, scenarios[current_scenario].transform.childCount);
+
+        GameObject scenario = scenarios[current_scenario].transform.GetChild(rnd).gameObject;
+
+        VideoClip clip = scenario.GetComponent<VideoContainer>().clip;
+        VideoPlayer player = GameObject.FindObjectOfType<VideoPlayer>();
+
+        player.clip = clip;
+        player.Play();
+
+        yield return new WaitUntil(() => player.isPrepared);
+        yield return new WaitForSeconds(0.05f);
+        scenario.GetComponent<RawImage>().enabled = true;
+
+        yield return new WaitForSeconds((float)clip.length);
+        scenario.GetComponent<RawImage>().enabled = false;
+
+        lastTime = Time.time + 2f;
+    }
+
+    public void Refresh(){
+        GameObject.FindObjectOfType<VideoPlayer>().Stop();
+        scenarios[current_scenario].SetActive(true);
+        for(int i = 0; i < scenarios[current_scenario].transform.childCount; i++)
+            scenarios[current_scenario].transform.GetChild(i).GetComponent<RawImage>().enabled = false;
+    }
+
+    public void ChangeScenario(string scenario){
+        Debug.Log(scenario);
+        if(scenario == current_scenario) return;
+
+        if(current_scenario != "")
+            scenarios[current_scenario].SetActive(false);
+
+        current_scenario = scenario;
+        Refresh();
+        lastTime = Time.time;
+    }
+}

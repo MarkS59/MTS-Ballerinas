@@ -13,6 +13,7 @@ public class ServerCommunicator : MonoBehaviour
     string url = "";
     string stand_id = "";
     string token = "";
+    public float delay = 0.2f;
 
     public Action[] actions = {
         new Action("available"),
@@ -28,10 +29,12 @@ public class ServerCommunicator : MonoBehaviour
         StartCoroutine(AjaxRequest());
     }
 
+    public float lastRequestTime = 1;
     // Update is called once per frame
     void Update()
     {
-        
+        if(lastRequestTime > 0 && Time.time > lastRequestTime+delay)
+            StartCoroutine(AjaxRequest());
     }
 
     public void SendPhoto(Texture2D image) {
@@ -39,32 +42,36 @@ public class ServerCommunicator : MonoBehaviour
     }
 
     IEnumerator AjaxRequest() {
-        while(true){
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(url+"/stands/"+stand_id))
-            {
-                webRequest.SetRequestHeader("Authorization", "Bearer "+token);
-                yield return webRequest.SendWebRequest();
-                
-                if(webRequest.isNetworkError || webRequest.isHttpError){
-                    Debug.Log(webRequest.downloadHandler.text);
-                    if(webRequest.isNetworkError)
-                        Debug.Log("Host " + url + " unavailable");
-                    break;
-                }
-                
-                string text = webRequest.downloadHandler.text;
-                AjaxResponse response = JsonUtility.FromJson<AjaxResponse>(text);
-                //response.status = "photo";
-                if (response.status != currentStatus){
-                    foreach(var action in actions){
-                        if(action.status == response.status)
-                            action.action.Invoke();
-                    }
-                    currentStatus = response.status;
-                }
+        lastRequestTime = -1;
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url+"/stands/"+stand_id))
+        {
+            webRequest.SetRequestHeader("Authorization", "Bearer "+token);
+            yield return webRequest.SendWebRequest();
+            lastRequestTime = Time.time;
+
+            if(webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError) {
+                Debug.Log(webRequest.downloadHandler.text);
+                if(webRequest.result == UnityWebRequest.Result.ConnectionError)
+                    Debug.Log("Host " + url + " unavailable");
+                yield break;
             }
-            yield return new WaitForSeconds(0.5f);
+            
+            string text = webRequest.downloadHandler.text;
+            AjaxResponse response = JsonUtility.FromJson<AjaxResponse>(text);
+            //response.status = "photo";
+            if (response.status != currentStatus){
+                foreach(var action in actions){
+                    if(action.status == response.status)
+                        action.action.Invoke();
+                }
+                currentStatus = response.status;
+            }
+            Debug.Log(text);
+            if(WelcomeScreen.instance)
+                WelcomeScreen.instance.ChangeScenario(response.scenario);
+
         }
+            
     }
 
     IEnumerator SendPhotoRequest (Texture2D image){
@@ -75,17 +82,17 @@ public class ServerCommunicator : MonoBehaviour
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(url+"/files?fields=id", formData))
         {
-            webRequest.SetRequestHeader("Authorization", "Bearer " + token);
+            webRequest.SetRequestHeader("Authorization", "Bearer "+token);
             yield return webRequest.SendWebRequest();
             string text = webRequest.downloadHandler.text;
             
             byte[] utf8text = Encoding.UTF8.GetBytes(text);
 
-            using (UnityWebRequest webRequest2 = new UnityWebRequest(url + "/stands/" + stand_id + "/upload", "POST"))
+            using (UnityWebRequest webRequest2 = new UnityWebRequest(url+"/stands/"+stand_id+"/upload", "POST"))
             {
                 webRequest2.uploadHandler = new UploadHandlerRaw(utf8text);
                 webRequest2.downloadHandler = new DownloadHandlerBuffer();
-                webRequest2.SetRequestHeader("Authorization", "Bearer " + token);
+                webRequest2.SetRequestHeader("Authorization", "Bearer "+token);
                 webRequest2.SetRequestHeader("Content-Type", "application/json;charset=utf-8");
                 
                 yield return webRequest2.SendWebRequest();
@@ -112,4 +119,5 @@ public class Action {
 public class AjaxResponse {
     public string status;
     public string photo;
+    public string scenario;
 }
