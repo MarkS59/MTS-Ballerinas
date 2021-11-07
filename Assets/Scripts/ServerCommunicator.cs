@@ -66,7 +66,7 @@ public class ServerCommunicator : MonoBehaviour
                 }
                 currentStatus = response.status;
             }
-            Debug.Log(text);
+            //Debug.Log(text);
             if(WelcomeScreen.instance)
                 WelcomeScreen.instance.ChangeScenario(response.scenario);
 

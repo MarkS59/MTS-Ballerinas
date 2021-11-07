@@ -13,7 +13,7 @@ public class StandbyScreenplaySelector : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StandbyRISetShow(false);
+        centerStandbyRI.enabled = false;
         CoroutineStarter(true);
     }
 
@@ -26,16 +26,13 @@ public class StandbyScreenplaySelector : MonoBehaviour
     public void CoroutineStarter(bool b) {
         if (!b){
             StopAllCoroutines();
-            StandbyRISetShow(b);
+            centerStandbyRI.enabled = false;
         }
         else {
             StopAllCoroutines();
             StartCoroutine(StandbyClipSelector());
         }
         
-    }
-    public void StandbyRISetShow(bool center) {
-        centerStandbyRI.enabled = center;
     }
 
     IEnumerator StandbyClipSelector() {
@@ -45,9 +42,9 @@ public class StandbyScreenplaySelector : MonoBehaviour
                 GetComponent<VideoPlayer>().clip = vc;
                 yield return new WaitUntil(()=> GetComponent<VideoPlayer>().isPrepared);
                 yield return new WaitForSeconds(0.3F);
-                StandbyRISetShow(true);
+                centerStandbyRI.enabled = true;
                 yield return new WaitUntil(()=> !GetComponent<VideoPlayer>().isPlaying);
-                StandbyRISetShow(false);
+                centerStandbyRI.enabled = false;
             }
         }
     }

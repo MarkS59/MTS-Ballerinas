@@ -33,13 +33,14 @@ public class WelcomeScreen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(lastTime > 0 && Time.time > lastTime){
+        if(lastTime > 0 && scenarios.ContainsKey(current_scenario) && Time.time > lastTime){
             StartCoroutine(_PlayVideo());
         }
     }
 
     IEnumerator _PlayVideo(){
         lastTime = -1;
+        GameObject.FindObjectOfType<VideoPlayer>().Stop();
         int rnd = UnityEngine.Random.Range(0, scenarios[current_scenario].transform.childCount);
 
         GameObject scenario = scenarios[current_scenario].transform.GetChild(rnd).gameObject;
@@ -57,25 +58,27 @@ public class WelcomeScreen : MonoBehaviour
         yield return new WaitForSeconds((float)clip.length);
         scenario.GetComponent<RawImage>().enabled = false;
 
-        lastTime = Time.time + 2f;
+        //lastTime = Time.time + 2f;
     }
 
     public void Refresh(){
-        GameObject.FindObjectOfType<VideoPlayer>().Stop();
-        scenarios[current_scenario].SetActive(true);
         for(int i = 0; i < scenarios[current_scenario].transform.childCount; i++)
             scenarios[current_scenario].transform.GetChild(i).GetComponent<RawImage>().enabled = false;
     }
 
     public void ChangeScenario(string scenario){
-        Debug.Log(scenario);
+        //Debug.Log(scenario);
         if(scenario == current_scenario) return;
 
-        if(current_scenario != "")
+        if(scenarios.ContainsKey(current_scenario))
             scenarios[current_scenario].SetActive(false);
-
+        
         current_scenario = scenario;
         Refresh();
+
+        if(scenarios.ContainsKey(current_scenario))
+            scenarios[current_scenario].SetActive(true);
+
         lastTime = Time.time;
     }
 }

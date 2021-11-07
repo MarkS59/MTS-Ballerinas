@@ -33,13 +33,10 @@ public class VideoController : MonoBehaviour
     public void Open(){
         rand = Random.Range(0, videoObjects.Length);
         VideoObject videoObject = videoObjects[0];
-        Debug.Log(videoObject.clip.name);
         videoPlayer.clip = videoObject.clip;
-        Debug.Log(videoPlayer.clip.name);
         videoPlayer.Stop();
         videoPlayer.Prepare();
         startTime = Time.time;
-        Debug.Log(actors);
         actors.SetActive(true);
         screenplayOneRawImage.enabled = false;
         screenplayTwoRawImage.enabled = false;

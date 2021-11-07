@@ -10,9 +10,6 @@ public class CameraScript : MonoBehaviour
     {
         string deviceName = WebCamTexture.devices[0].name;
         WebCamTexture texture = new WebCamTexture(deviceName, 1920, 1080, 30);
-        foreach (var devices in WebCamTexture.devices){
-            Debug.Log($"Device {devices}");
-        }
         GetComponent<RawImage>().texture = texture;
         texture.Play();
     }
