@@ -10,7 +10,7 @@ public class WelcomeScreen : MonoBehaviour
 {
     public static WelcomeScreen instance;
     public string current_scenario;
-
+    public VideoPlayer player;
     Dictionary<string, GameObject> scenarios = new Dictionary<string, GameObject>();
 
     // Start is called before the first frame update
@@ -34,11 +34,11 @@ public class WelcomeScreen : MonoBehaviour
     void Update()
     {
         if(lastTime > 0 && scenarios.ContainsKey(current_scenario) && Time.time > lastTime){
-            StartCoroutine(_PlayVideo());
+            StartCoroutine(_PlayVideo(/*true*/));
         }
     }
 
-    IEnumerator _PlayVideo(){
+    IEnumerator _PlayVideo(/*bool show*/){
         lastTime = -1;
         GameObject.FindObjectOfType<VideoPlayer>().Stop();
         int rnd = UnityEngine.Random.Range(0, scenarios[current_scenario].transform.childCount);
@@ -46,8 +46,10 @@ public class WelcomeScreen : MonoBehaviour
         GameObject scenario = scenarios[current_scenario].transform.GetChild(rnd).gameObject;
 
         VideoClip clip = scenario.GetComponent<VideoContainer>().clip;
-        VideoPlayer player = GameObject.FindObjectOfType<VideoPlayer>();
-
+        /*if (!show){
+            scenario.GetComponent<RawImage>().enabled = false;
+            StopAllCoroutines();
+        }*/
         player.clip = clip;
         player.Play();
 
@@ -66,8 +68,10 @@ public class WelcomeScreen : MonoBehaviour
             scenarios[current_scenario].transform.GetChild(i).GetComponent<RawImage>().enabled = false;
     }
 
-    public void ChangeScenario(string scenario){
+    public void ChangeScenario(string scenario/*, string status*/){
         //Debug.Log(scenario);
+        /*if (status == "photo")
+            StopCoroutine(_PlayVideo(false));*/
         if(scenario == current_scenario) return;
 
         if(scenarios.ContainsKey(current_scenario))

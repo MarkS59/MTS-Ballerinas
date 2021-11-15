@@ -37,8 +37,9 @@ public class StandbyScreenplaySelector : MonoBehaviour
 
     IEnumerator StandbyClipSelector() {
         while (loop) {
+            
             foreach (VideoClip vc in centerStandbyClips){
-                yield return new WaitForSeconds(5.0f);
+                yield return new WaitForSeconds(30.0f);
                 GetComponent<VideoPlayer>().clip = vc;
                 yield return new WaitUntil(()=> GetComponent<VideoPlayer>().isPrepared);
                 yield return new WaitForSeconds(0.3F);
@@ -46,6 +47,7 @@ public class StandbyScreenplaySelector : MonoBehaviour
                 yield return new WaitUntil(()=> !GetComponent<VideoPlayer>().isPlaying);
                 centerStandbyRI.enabled = false;
             }
+            //some shit
         }
     }
 

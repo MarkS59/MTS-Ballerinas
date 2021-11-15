@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
@@ -8,19 +8,21 @@ using UnityEngine.UI;
 public class VideoController : MonoBehaviour
 {   
     public VideoObject[] videoObjects;
+    public Dictionary<string, VideoObject> clips = new Dictionary<string, VideoObject>();
     public float fullTime = 10;
     public int rand;
     public VideoPlayer videoPlayer;
-    public RawImage screenplayOneRawImage, screenplayTwoRawImage, screenplayThreeRawImage;
     public GameObject actors;
     
     public AnimObject overlay;
     public CountdownScript countdownScript;
+    VideoObject videoObject;
+    
 
     // Start is called before the first frame update
     void Start()
     {
-        //videoPlayer = GameObject.FindObjectOfType<VideoPlayer>();
+        
     }
 
     // Update is called once per frame
@@ -38,9 +40,7 @@ public class VideoController : MonoBehaviour
         videoPlayer.Prepare();
         startTime = Time.time;
         actors.SetActive(true);
-        screenplayOneRawImage.enabled = false;
-        screenplayTwoRawImage.enabled = false;
-        screenplayThreeRawImage.enabled = false;
+        //RI enabled false
         StartCoroutine(_Open(videoObject));
     }
 
@@ -53,16 +53,7 @@ public class VideoController : MonoBehaviour
         videoPlayer.Play();
 
         yield return new WaitForSeconds(0.1f);
-        if (rand == 0) {
-            screenplayOneRawImage.enabled = true;
-            //screenplayOneRawImage.SetActive(true);
-        } else if (rand == 1) {
-            screenplayTwoRawImage.enabled = true;
-            //screenplayTwoRawImage.SetActive(true);
-        } else {
-            screenplayThreeRawImage.enabled = true;
-            //screenplayThreeRawImage.SetActive(true);
-        }
+        //RI enabler 
         //screenPlayRawImage.enabled = true;
 
         yield return new WaitForSeconds(videoObject.key - 1 - 0.1f);
@@ -80,23 +71,28 @@ public class VideoController : MonoBehaviour
         videoPlayer.Play();
     }
     public void OpenVideo() {
+        GameObject.FindObjectOfType<ScreenplaySelector>().Refresh();
+        
 
-        //screenPlayRawImage.enabled = true;
-        screenplayOneRawImage.enabled = false;
-        screenplayTwoRawImage.enabled = false;
-        screenplayThreeRawImage.enabled = false;
-        int r = Random.Range(0, videoObjects.Length);
-        VideoObject videoObject = videoObjects[r];
-        if (r == 0) {
-            screenplayOneRawImage.enabled = true;
-            //screenplayOneRawImage.SetActive(true);
-        } else if (r == 1) {
-            screenplayTwoRawImage.enabled = true;
-            //screenplayTwoRawImage.SetActive(true);
-        } else {
-            screenplayThreeRawImage.enabled = true;
-            //screenplayThreeRawImage.SetActive(true);
+        string scenario = GameObject.FindObjectOfType<ScreenplaySelector>().current_scenario;
+        //GameObject.FindObjectOfType<ScreenplaySelector>().scenario.GetComponent<RawImage>().enabled = true;
+        Debug.Log(scenario);
+        switch (scenario){
+            case "show":
+                videoObject = videoObjects[0];
+                break;
+            case "theatre":
+                videoObject = videoObjects[1];
+                break;
+            case "museum":
+                videoObject = videoObjects[2];
+                break;
+            case "concert":
+                videoObject = videoObjects[3];
+                break;
         }
+        //Here should be scenario RI changer
+
         videoPlayer.clip = videoObject.clip;
         videoPlayer.time = videoObject.key;
 
@@ -104,11 +100,11 @@ public class VideoController : MonoBehaviour
 
     public void CloseVideo() {
         //screenPlayRawImage.enabled = false;
-        
-        screenplayOneRawImage.enabled = false;
-        screenplayTwoRawImage.enabled = false;
-        screenplayThreeRawImage.enabled = false;
+        GameObject.FindObjectOfType<ScreenplaySelector>().Refresh();
+
     }
+
+
 }
 
 [System.Serializable]
@@ -116,3 +112,5 @@ public class VideoObject {
     public VideoClip clip;
     public float key;
 }
+
+//

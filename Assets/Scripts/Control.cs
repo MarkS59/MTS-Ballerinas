@@ -136,8 +136,6 @@ public class Control : MonoBehaviour
                 actorObject.SetActive(true);
                 screenplayRawImage[0].enabled = true;
                 Cursor.visible = true;
-                GameObject.FindObjectOfType<ScreenplaySelector>().OnWaitPlayerFunc(false);
-                GameObject.FindObjectOfType<ScreenplaySelector>().OnClose();
                 GameObject.FindObjectOfType<VideoController>().OpenVideo();
                 GameObject.FindObjectOfType<StandbyScreenplaySelector>().CoroutineStarter(false);
                 showCam = 1;
@@ -153,7 +151,6 @@ public class Control : MonoBehaviour
                 GameObject.FindObjectOfType<VideoController>().CloseVideo();
                 actorObject.SetActive(false);
                 //screenplayRawImage[0].enabled = false;
-                GameObject.FindObjectOfType<ScreenplaySelector>().OnWaitPlayerFunc(true);
                 Cursor.visible = false;
                 showCam = 0;
             }

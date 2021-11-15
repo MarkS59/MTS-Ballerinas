@@ -68,7 +68,11 @@ public class ServerCommunicator : MonoBehaviour
             }
             //Debug.Log(text);
             if(WelcomeScreen.instance)
-                WelcomeScreen.instance.ChangeScenario(response.scenario);
+                WelcomeScreen.instance.ChangeScenario(response.scenario/*, response.status*/);
+
+            if(response.status == "photo" && response.scenario != null){
+                ScreenplaySelector.instance.ChangeScreenplay(response.scenario);
+            }
 
         }
             
